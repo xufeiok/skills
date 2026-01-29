@@ -1,0 +1,2 @@
+# No external dependencies required for SVG generation
+# previous: requests, volcengine, etc. (Removed for SVG-only mode)
