@@ -4,6 +4,13 @@ import sys
 import argparse
 import xml.etree.ElementTree as ET
 
+try:
+    import cairosvg
+    CAIRO_AVAILABLE = True
+except ImportError:
+    CAIRO_AVAILABLE = False
+    print("Warning: cairosvg not found. PNG conversion will be skipped.")
+
 def validate_svg(svg_content):
     """
     Validates SVG content using xml.etree.ElementTree.
@@ -120,6 +127,17 @@ def main():
             with open(save_path, 'w', encoding='utf-8') as f:
                 f.write(svg_code)
             print(f"Saved: {filename}")
+            
+            # Convert to PNG if available
+            if CAIRO_AVAILABLE:
+                png_filename = filename.replace('.svg', '.png')
+                png_save_path = os.path.join(output_dir, png_filename)
+                try:
+                    cairosvg.svg2png(url=save_path, write_to=png_save_path, output_width=1080, output_height=1440)
+                    print(f"Converted: {png_filename}")
+                except Exception as e:
+                    print(f"PNG Conversion failed for {filename}: {e}")
+                    
         except Exception as e:
             print(f"Failed to save {filename}: {e}")
 

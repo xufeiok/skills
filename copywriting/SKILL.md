@@ -262,13 +262,28 @@ Tasks containing keywords: "写文章", "撰写", "内容", "标题", "开头", 
 8.  **Ending**: Summary/Sublimation + Emotional Resonance + Call to Action.
 9.  **Output & Save**: Output complete article and automatically save it to `e:\Quant\.trae\skills\copywriting\works\[Title].md` (sanitized filename).
 
-### Best Practices
--   **Paragraphs**: 3-5 lines, mobile-friendly.
--   **Dialogue**: Use "You" to speak directly to the reader.
--   **Stories**: Integrate real stories or scenarios.
--   **Data**: Cite authoritative sources.
--   **Tone**: Avoid preachy "Should"/"Must".
--   **Ending**: Leave a thought or action.
+### 1. Headline Strategy
+*   **Formula**: Number + Strong Emotion/Keyword + Benefit/Promise.
+*   **Example**: "3 Simple Habits (Number) That Will Save You 10 Hours a Week (Benefit) - Even If You're Overwhelmed (Emotion)."
+
+### 2. The "Hot Topic Hook" (Opening)
+*   **Requirement**: If the article is based on a news topic, the opening MUST explicitly mention the news event (briefly) to leverage the trend.
+*   **Structure**: "Recently, [News Event] has sparked heated debate... This phenomenon actually reveals [Core Pain Point]..."
+
+### 3. Actionable Advice (Body)
+*   **Requirement**: When providing suggestions, avoid vague theory (e.g., "Just be confident").
+*   **Execution**: Provide specific, executable steps or tools (e.g., "Step 1: Write down 3 things...", "Use the Pomodoro Technique: 25min work + 5min break").
+*   **Format**: Use bullet points or numbered lists for clarity.
+
+### 4. Content Structure (The "Slipstream" Method)
+*   **Logical Flow (SCQA)**: Ensure the article follows Situation -> Complication -> Question -> Answer.
+*   **Transitions**: Use explicit transitional phrases between paragraphs (e.g., "However," "This leads us to," "Beyond this").
+*   **Opening**: Hook the reader immediately with a relatable problem or surprising fact.
+*   **Body**: 
+    *   Use short paragraphs (1-3 sentences).
+    *   Use subheadings to break up text.
+    *   Include "Golden Sentences" (quotable insights).
+*   **Ending**: Summarize key points and end with an inspiring call to action.
 
 ---
 

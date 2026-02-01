@@ -27,10 +27,12 @@ This skill acts as a professional editor and creative writing coach. It takes ra
 4.  **Emotional Resonance**: Does it trigger specific emotions (warmth, anger, regret, pride)?
 5.  **Extensibility**: Can it connect to history, culture, personal growth, or industry trends?
 
-**Decision**: Select the ONE news item with the highest weighted score.
+**Decision**: Select the ONE news item with the highest weighted score, prioritizing Personal Growth potential.
 *   *Weighting*: Extensibility (30%) > Social Relevance (25%) > Controversy (20%) > Emotion (15%) > Timeliness (10%).
-*   *Note*: Avoid news that is purely factual, repetitive, or has high risk of reversal (fake news).
+*   *Filter*: If a news item is purely political, entertainment gossip, or catastrophic with no personal growth angle, give it a low score.
+*   *Safety*: STRICTLY AVOID news involving national leaders, sensitive international politics, or social instability to ensure compliance.
 *   *Source Tip*: Prefer news from mainstream authoritative media or vertical professional platforms.
+*   *Focus Areas*: Ensure the news supports topics in Personal Growth, Career/Learning, Family Life, Reading, or Personal Skills.
 
 ### Step 2: Deep Dismantling (Analysis)
 
@@ -52,16 +54,28 @@ This skill acts as a professional editor and creative writing coach. It takes ra
 
 ### Step 3: Creative Topic Generation (Ideation)
 
-**Action**: Generate 5-7 distinct writing topics based on the dismantling. Use these specific methods:
+**Action**: Generate 5-7 distinct writing topics based on the dismantling, STRICTLY focusing on Personal Growth. Use these specific angles:
 
-*   **Method A: Niche Perspective** (Focus on the ignored)
-    *   *Example*: Instead of the rocket launch, write about the "Space Food Researcher".
-*   **Method B: Reverse Thinking** (Rational counter-point)
-    *   *Example*: "Why 'High Efficiency' might be destroying our creativity."
-*   **Method C: Small-to-Big** (Microcosm)
-    *   *Example*: "What a single rural school lunch says about national education reform."
-*   **Method D: History/Culture Contrast** (Time travel)
-    *   *Example*: "Comparing today's 'Lie Flat' movement to the 'Beat Generation'."
+*   **Angle A: From News to Self (由彼及己)**
+    *   *Concept*: Reflect on personal life via the news event.
+    *   *Example*: "What the 'Gold Crash' teaches us about managing our own emotional assets."
+*   **Angle B: Actionable Insight (行动指南)**
+    *   *Concept*: Extract methodology, habits, or tools from the event.
+    *   *Example*: "3 habits from the Olympic champion that you can use in your daily work."
+*   **Angle C: Cognitive Upgrade (认知升级)**
+    *   *Concept*: Use the event to challenge or upgrade a common worldview.
+    *   *Example*: "Why 'Stable Jobs' are the biggest risk in 2024: A new perspective on career safety."
+*   **Angle D: Reflective Reading (读书思考)**
+    *   *Concept*: Connect the event to a classic book, theory, or concept.
+    *   *Example*: "The 'Glass Cliff' phenomenon explained: Why female leaders are often appointed during crises."
+
+**Output Requirement**:
+Return a JSON array containing the generated topics. Each topic MUST include:
+*   `title`: The generated topic title.
+*   `news_context`: A brief 1-sentence summary of the news event (to be used as context in the article).
+*   `direction`: The chosen direction (Personal Growth, Career, etc.).
+*   `method`: The creative method used.
+*   `angle`: The specific angle taken.
 
 ### Step 4: Evaluation & Output
 

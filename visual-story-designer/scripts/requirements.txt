@@ -1,2 +1,1 @@
-# No external dependencies required for SVG generation
-# previous: requests, volcengine, etc. (Removed for SVG-only mode)
+cairosvg>=2.7.0

@@ -1,9 +1,24 @@
----
-name: visual-story-designer
-description: Transforms articles or long text into engaging visual storyboards for social media (Xiaohongshu, Douyin/TikTok, Instagram). Extracts core insights, plans a multi-image sequence, and generates high-quality SVG vector graphics for each slide. Supports automatic PNG conversion for direct publishing. Focuses on infographic style, clean typography, and data visualization.
+import argparse
+import sys
+import os
+import re
 
-# Visual Story Designer (SVG Typography Mode)
+# Add path to AIProcessor
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+sys.path.append(os.path.join(project_root, '.trae', 'skills', 'publish-to-wechat'))
 
+try:
+    from src.ai_processor import AIProcessor
+except ImportError:
+    print("Error: Could not import AIProcessor")
+    sys.exit(1)
+
+class VisualStoryDesigner:
+    def __init__(self, ai_client):
+        self.ai = ai_client
+
+    def generate(self, article_content):
+        prompt = f"""
 You are an expert **Editorial Designer** and **Information Architect**. Your goal is to distill articles into **High-Impact Typographic Slides** (SVG).
 
 **Your output is NOT about drawing complex illustrations. It is about typesetting text beautifully.**
@@ -32,7 +47,7 @@ You turn boring articles into "Insta-worthy" or "Xiaohongshu-style" text cards.
 | **2-N. Body** | The Value | **Structure**: Number -> Headline -> Rich Explanation. |
 | **Last. Outro** | The Ask | "Summary" + Call to Action (Save/Share). |
 
-### 4.2 SVG Visual System
+### 3. SVG Visual System
 The SVG output must use the following advanced design system. Do not use plain white backgrounds.
 
 #### Design Language: "Modern Editorial"
@@ -48,10 +63,10 @@ The SVG output must use the following advanced design system. Do not use plain w
 <defs>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&amp;display=swap');
-    .title { font-family: 'Noto Sans SC', sans-serif; font-weight: 900; }
-    .subtitle { font-family: 'Noto Sans SC', sans-serif; font-weight: 700; }
-    .text { font-family: 'Noto Sans SC', sans-serif; font-weight: 400; }
-    .detail { font-family: 'Noto Sans SC', sans-serif; font-weight: 300; }
+    .title {{ font-family: 'Noto Sans SC', sans-serif; font-weight: 900; }}
+    .subtitle {{ font-family: 'Noto Sans SC', sans-serif; font-weight: 700; }}
+    .text {{ font-family: 'Noto Sans SC', sans-serif; font-weight: 400; }}
+    .detail {{ font-family: 'Noto Sans SC', sans-serif; font-weight: 300; }}
   </style>
   <!-- Gradients -->
   <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -92,57 +107,69 @@ The SVG output must use the following advanced design system. Do not use plain w
    - **Subtitle**: 50px (dy=75), Bold weight (700). Max 15 chars/line.
    - **Body/Detail**: 35px (dy=55), Light/Regular (300/400). Max 22 chars/line. **CRITICAL: Generous line height prevents overlap.**
 
-### 4.3 Content-to-SVG Rules
+### Content-to-SVG Rules
 - **Text Wrapping**: SVG does not wrap text. You MUST manually split text into `<tspan>` lines.
 - **Line Spacing (dy)**:
   - For Title (80px), use `dy="100"`.
   - For Subtitle (50px), use `dy="75"`.
   - For Body (35px), use `dy="55"`.
 - **Safe Area**: Keep text within x=80 to x=1000. Avoid writing below y=1300.
-- **Visual Metaphors**: Use simple geometric shapes (Circles, Triangles) to represent abstract concepts (Conflict, Growth, Decline).
 
-### 4. Output Generation
+## Output Generation
 Generate a Markdown report containing the SVGs.
 
 ## Output Format
-
 ```markdown
 # Visual Summary: [Title]
 
 ## Slide 1: Cover
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1440">
-  <defs>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;900&amp;display=swap');
-      .bg { fill: #F5F5F7; }
-      .title { font-family: 'Noto Sans SC', sans-serif; font-weight: 900; font-size: 100px; fill: #1D1D1F; }
-      .sub { font-family: 'Noto Sans SC', sans-serif; font-weight: 400; font-size: 50px; fill: #86868B; }
-    </style>
-  </defs>
-  <rect width="100%" height="100%" class="bg"/>
-  
-  <!-- Decorative Element -->
-  <circle cx="900" cy="200" r="150" fill="#FF6B00" opacity="0.2"/>
-  
-  <!-- Text Content -->
-  <text x="100" y="500" class="title">
-    <tspan x="100" dy="0">THE BIG</tspan>
-    <tspan x="100" dy="110">HEADLINE</tspan>
-  </text>
-  <text x="100" y="800" class="sub">
-    <tspan x="100" dy="0">A short subtitle</tspan>
-    <tspan x="100" dy="70">that explains the value</tspan>
-  </text>
+  ...
 </svg>
 ```
-
-## Slide 2: Insight 1
 ...
 ```
 
-## Execution
-Run the extractor script after generation:
-```bash
-python e:\Quant\.trae\skills\visual-story-designer\scripts\svg_gen.py "e:\Quant\.trae\skills\visual-story-designer\works\[Your_File]_Storyboard.md"
-```
+Article Content:
+{article_content}
+"""
+        resp = self.ai.client.chat.completions.create(
+            model=self.ai.model,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return resp.choices[0].message.content
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_file", help="Input Article Markdown file")
+    args = parser.parse_args()
+
+    # Config
+    config_path = os.path.join(project_root, '.trae', 'skills', 'publish-to-wechat', 'config.yaml')
+    if not os.path.exists(config_path):
+        print(f"Error: Config not found at {config_path}")
+        sys.exit(1)
+
+    ai = AIProcessor(config_path)
+    if not ai.client:
+        print("Error: AI Client not initialized")
+        sys.exit(1)
+
+    with open(args.input_file, 'r', encoding='utf-8') as f:
+        article_content = f.read()
+
+    designer = VisualStoryDesigner(ai)
+    storyboard_md = designer.generate(article_content)
+
+    # Output filename: [original]_Storyboard.md
+    base_name = os.path.splitext(args.input_file)[0]
+    output_file = f"{base_name}_Storyboard.md"
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(storyboard_md)
+        
+    print(output_file)
+
+if __name__ == "__main__":
+    main()
