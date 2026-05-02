@@ -1,6 +1,7 @@
 ---
 name: visual-story-designer
 description: Transforms articles or long text into engaging visual storyboards for social media (Xiaohongshu, Douyin/TikTok, Instagram). Extracts core insights, plans a multi-image sequence, and generates high-quality SVG vector graphics for each slide. Supports automatic PNG conversion for direct publishing. Focuses on infographic style, clean typography, and data visualization.
+---
 
 # Visual Story Designer (SVG Typography Mode)
 
