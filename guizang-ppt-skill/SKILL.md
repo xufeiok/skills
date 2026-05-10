@@ -269,6 +269,7 @@ guizang-ppt-skill/
 5. 如果在 Codex 中生成配图,读 `image-prompts.md` 挑图片类型、比例和基础提示词
 6. 细节调整时读 `components.md` 查组件(含 Motion 动效系统章节)
 7. 生成后读 `checklist.md` 自检(顶部 P0-0 规则强制预检 + 动效自检块)
+8. 参考 `references/dmaic-generation-log.md` 有一个完整的工作范例(源markdown → 12页PPT的映射全过程),可作为同类培训课件的生成模式
 
 **动效相关**:模板已把 Motion One 的加载和 5 种 recipe 逻辑全部内嵌到 `template.html` 底部的 module script。你不需要改 JS,只需要按 `layouts.md` 的骨架在 HTML 里加 `data-anim` / `data-animate` 即可。离线演示靠 `assets/motion.min.js`,断网时自动降级为"无动画但内容可读"。
 

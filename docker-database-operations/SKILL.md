@@ -1,8 +1,8 @@
 ---
 name: docker-database-operations
-description: 在 Docker 容器内操作其他 Docker 容器中的数据库（ClickHouse、DuckDB、MySQL等）— 网络发现、驱动安装、连接方法
+description: 在 Docker 容器内操作其他 Docker 容器中的数据库（ClickHouse、DuckDB、MySQL等）— 网络发现、驱动安装、连接方法。触发：连 Docker 里的数据库、查 ClickHouse、在 Docker 里扫端口找数据库。
 category: productivity
-version: 1.0
+version: 1.1
 ---
 
 # Docker 容器内操作数据库
