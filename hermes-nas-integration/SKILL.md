@@ -32,7 +32,7 @@ version: 1.1.0
 
 无需重新配置，直接使用：
 - **用户名**: xufeiok
-- **Token**: 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
+- **Token**: [已删除 — 旧token已废弃]
 - **gh CLI**: v2.46.0（已安装）
 - **协议**: HTTPS
 - **已验证仓库**: xufeiok/Obisidion_base, xufeiok/Quant_Tushare, xufeiok/backtrader_superplot
