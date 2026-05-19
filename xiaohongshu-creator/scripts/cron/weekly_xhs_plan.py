@@ -13,7 +13,7 @@ from pathlib import Path
 
 APP_ID = os.environ.get("FEISHU_APP_ID", "cli_a96305a3b97a1cd3")
 APP_SECRET = os.environ.get("FEISHU_APP_SECRET", "")
-FOLDER_TOKEN = "JX9Mf6eOSlVkygd2pRzc3VlGnLh"
+FOLDER_TOKEN = "VhTqfdJZ7loRdedWbPAcE9zenkh"  # 西悦云庭每周销售小红书文案（共享空间）
 USER_OPEN_ID = "ou_9a0caef46ae39a2e88f9a867583b5821"
 DRAFT_DIR = Path(os.path.expanduser("~/.hermes/scripts/drafts"))
 DRAFT_DIR.mkdir(parents=True, exist_ok=True)
@@ -201,107 +201,75 @@ def action_preview():
 
 
 def action_publish():
-    """发布已确认的草稿到飞书文档"""
+    """发布已确认的草稿到飞书文档（Python API block-by-block）"""
     draft_file = DRAFT_DIR / "latest_xhs_draft.json"
     if not draft_file.exists():
         print("❌ 没有找到草稿文件。请先生成预览。")
         sys.exit(1)
     
     draft = json.loads(draft_file.read_text())
-    if draft["status"] == "published":
-        print("⚠ 该草稿已发布过，如需重新发布请先生成新的草稿。")
-        sys.exit(1)
-    
-    doc_title = f"西悦云庭销售小红书文案-{draft['date_range']}"
+    doc_title = f"西悦云庭每周销售小红书文案-{draft['date_range']}"
     print(f"📄 正在发布: {doc_title}")
     
     try:
         token = get_feishu_token()
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
         
-        # 1. 创建文档
-        cr = requests.post(
-            "https://open.feishu.cn/open-apis/docx/v1/documents",
-            json={"title": doc_title}, headers=headers, timeout=15
-        )
-        doc_data = cr.json()
-        doc_token = doc_data.get("data", {}).get("document", {}).get("document_id", "")
-        if not doc_token:
-            print(f"❌ 创建文档失败: {doc_data}")
-            sys.exit(1)
+        # 1. 创建文档到指定文件夹
+        cr = requests.post("https://open.feishu.cn/open-apis/docx/v1/documents",
+            json={"title": doc_title, "folder_token": FOLDER_TOKEN},
+            headers=headers, timeout=15)
+        doc_id = cr.json()["data"]["document"]["document_id"]
         print(f"✅ 文档已创建")
         
-        # 2. 移动到文件夹
-        requests.post(
-            f"https://open.feishu.cn/open-apis/drive/v1/files/{doc_token}/move",
-            json={"type": "file", "folder_token": FOLDER_TOKEN},
-            headers=headers, timeout=15
-        )
-        print(f"📁 已移动到「西悦云庭销售小红书文案」文件夹")
+        # 2. 分享给用户
+        requests.post(f"https://open.feishu.cn/open-apis/drive/v1/permissions/{doc_id}/members?type=docx",
+            json={"member_type": "openid", "member_id": USER_OPEN_ID, "perm": "full_access"},
+            headers=headers, timeout=15)
         
-        # 3. 写入内容（逐段）
-        doc_lines = [
-            f"# {doc_title}",
-            "",
-            f"🌿 周期：{draft['date_range']}（周五~下周四）",
-            f"💡 用途：置业顾问转发宣传",
-            "",
-            "---",
-        ]
+        def add_block(bt, key, text=""):
+            """bt: 2=text 3=h1 4=h2 5=h3 27=divider"""
+            block = {"block_type": 27, "divider": {}} if bt == 27 else \
+                    {"block_type": bt, key: {"elements": [{"text_run": {"content": text}}]}}
+            requests.post(f"https://open.feishu.cn/open-apis/docx/v1/documents/{doc_id}/blocks/{doc_id}/children",
+                json={"children": [block]}, headers=headers, timeout=15)
+            time.sleep(0.02)
+        
+        # 3. 写入内容
+        add_block(3, "heading1", doc_title)
+        add_block(2, "text", f"周期：{draft['date_range']}（周五~下周四）")
+        add_block(2, "text", "用途：西悦云庭置业顾问转发宣传")
+        add_block(27, "divider")
         
         for item in draft["contents"]:
-            doc_lines.append(f"## 📅 {item['date']}（{item['day']}）")
-            doc_lines.append("")
-            doc_lines.append(f"角度：{item['angles']}")
-            doc_lines.append(f"场景：{item['scene']}")
-            doc_lines.append("")
-            if item["title"]:
-                doc_lines.append(f"标题：{item['title']}")
-            if item["body"]:
-                doc_lines.append(f"正文：{item['body']}")
-            doc_lines.append("")
-            doc_lines.append("---")
-            doc_lines.append("")
-        
-        for line in doc_lines:
-            if not line.strip():
-                continue
-            block_type = 3
-            if line.startswith("# ") or (line.startswith("#") and not line.startswith("##") and not line.startswith("###")) and len(line) < 50:
-                block_type = 4
-            elif line.startswith("## "):
-                block_type = 5
-            elif line.startswith("### "):
-                block_type = 6
-            elif line.startswith("---"):
-                block_type = 22
+            add_block(4, "heading2", f"{item['day']} {item['date']}")
+            add_block(27, "divider")
             
-            content_text = line.lstrip("# ").strip() if block_type > 3 else line
-            requests.post(
-                f"https://open.feishu.cn/open-apis/docx/v1/documents/{doc_token}/blocks/{doc_token}/children",
-                json={"children": [{"block_type": block_type, "text": {
-                    "elements": [{"text_run": {"content": content_text}}]
-                }}]},
-                headers=headers, timeout=15
-            )
+            # 标题
+            if item.get("title"):
+                add_block(3, "heading1", item["title"])
+                add_block(2, "text", "")  # 标题后空行
+            
+            # 正文（段落之间不隔行，标签仅从原文提取一次）
+            if item.get("body"):
+                all_lines = item["body"].split("\n")
+                body_paras = [l.strip() for l in all_lines if l.strip() and not l.strip().startswith("#")]
+                tags_list = [l.strip() for l in all_lines if l.strip().startswith("#")]
+                
+                for para in body_paras:
+                    add_block(2, "text", para)
+                
+                # 正文与标签之间空行
+                add_block(2, "text", "")
+                if tags_list:
+                    add_block(2, "text", "  ".join(tags_list))
+            
+            add_block(27, "divider")
         
-        # 4. 设置公开权限
-        requests.patch(
-            f"https://open.feishu.cn/open-apis/drive/v1/permissions/{doc_token}/public",
-            json={
-                "external_access_entity": "open",
-                "security_entity": "anyone",
-                "comment_entity": "anyone",
-                "share_entity": "anyone",
-                "link_share_entity": "anyone_readable"
-            },
-            headers=headers, timeout=15
-        )
-        
-        doc_url = f"https://x0k1x5b6h3.feishu.cn/docx/{doc_token}"
+        doc_url = f"https://x0k1x5b6h3.feishu.cn/docx/{doc_id}"
         print(f"\n✅ 发布完成！")
         print(f"📄 文档: {doc_url}")
-        print(f"📁 位置: 西悦云庭销售小红书文案/")
+        print(f"📁 位置: 西悦云庭每周销售小红书文案/")
         
         # 更新草稿状态
         draft["status"] = "published"
@@ -309,20 +277,22 @@ def action_publish():
         draft["published_at"] = datetime.now().isoformat()
         draft_file.write_text(json.dumps(draft, ensure_ascii=False, indent=2))
         
-        # 发送飞书通知
+        # 飞书通知
         try:
             send_simple_message(token, 
-                f"✅ 西悦云庭小红书文案已发布！\n"
+                f"✅ 西悦云庭每周销售小红书文案已发布！\n"
                 f"📄 {doc_title}\n"
                 f"🔗 {doc_url}\n"
-                f"📁 位置：西悦云庭销售小红书文案文件夹")
+                f"📁 位置：飞书 → 西悦云庭每周销售小红书文案/")
         except:
             pass
         
-        print(f"\nJSON_OUTPUT:{{\"url\":\"{doc_url}\",\"token\":\"{doc_token}\",\"title\":\"{doc_title}\"}}")
+        print(f"\nJSON_OUTPUT:{{\"url\":\"{doc_url}\",\"token\":\"{doc_id}\",\"title\":\"{doc_title}\"}}")
         
     except Exception as e:
         print(f"❌ 发布失败: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 
