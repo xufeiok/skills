@@ -268,11 +268,11 @@ mcp_servers:
 
 **环境变量**（推荐）：
 ```bash
-export FEISHU_APP_ID="cli_xxxxxxxxxxxxx"
-export FEISHU_APP_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxx"
+export FEISHU_APP_ID="cli_a96305a3b97a1cd3"
+export FEISHU_APP_SECRET="你的飞书AppSecret"
 ```
 
-**飞书 CLI 配置文件**（自动识别）：
+**飞书 CLI 配置文件**（自动识别，但 FnOS 有 DNS 问题，推荐用 Python API）：
 `~/.lark-cli/hermes/config.json`
 
 ### 命令
@@ -286,6 +286,33 @@ python scripts/scheduler.py --action create --topic "主题" --schedule "0 22 * 
 
 # 发布时同步飞书
 python scripts/publisher.py --title "标题" --content "正文" --images img.jpg --feishu-doc
+```
+
+## 每周文案工作流（西悦云庭）
+
+每周四 22:30 自动执行，为下周（周五~下周四）生成7篇置业顾问转发用的小红书文案。
+
+### 工作流
+```
+周四 22:30 → 自动生成7篇文案草稿
+           → 通过飞书发送预览消息给我确认
+           → 我在飞书回复「确认发布」
+           → 执行 publish 推送到飞书公开文档
+```
+
+### 项目价值角度（11个）
+国企、现房、公园、双园、醇熟配套、学校汇聚、低密、全能套四、横厅、健康森活、青年平墅
+
+### 知识库
+项目详细信息存于 `/vol1/1000/KnowledgeBase/lib-地产/wiki/entities/西悦云庭.md`
+
+### 手动操作
+```bash
+# 生成预览并飞书发我确认（草稿存于 ~/.hermes/scripts/drafts/）
+python3 ~/.hermes/scripts/weekly_xhs_plan.py --action preview
+
+# 我确认后，发布到飞书文档
+python3 ~/.hermes/scripts/weekly_xhs_plan.py --action publish
 ```
 
 1. **发布前必须经用户确认** — 默认预览模式，从不自动发布
